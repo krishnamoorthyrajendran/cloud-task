@@ -1,0 +1,21 @@
+# Create a Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  
+---
+# Create a ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s  # Collect the metrics from 15s
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['10.100.102.217:9090','10.100.102.217:9100'] # 9090 Prometheus Port ,node-exporter 9100 Port

@@ -1,0 +1,58 @@
+
+# Create a node-Exporter
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: monitoring
+  labels:
+    app: node-exporter
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+    spec:
+      containers:
+      - name: node-exporter-image
+        image: prom/node-exporter:latest
+        ports:
+        - containerPort: 9100
+        volumeMounts:
+        - name: sys
+          mountPath: /host/sys # kernel and system information
+          readOnly: true
+        - name: root
+          mountPath: /host/root
+          readOnly: true
+        args:
+        - --path.sysfs=/host/sys   # Contain CPU,RAM information
+        - --path.rootfs=/host/root # Contain disk ,file system information
+      volumes:
+      - name: sys
+        hostPath:
+          path: /sys
+      - name: root
+        hostPath:
+          path: /
+          
+          
+---
+# Create a Node-Exporter service
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-exporter
+  namespace: monitoring
+  labels:
+    app: node-exporter
+spec:
+  ports:
+  - port: 9100
+    targetPort: 9100
+    protocol: TCP
+  selector:
+    app: node-exporter          
